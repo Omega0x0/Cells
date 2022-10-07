@@ -1,0 +1,9 @@
+[package]
+name = "cells"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+rand = "0.8.5"
+nannou = "0.18.1"
+nannou_egui = "0.5.0"
