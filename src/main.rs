@@ -52,6 +52,8 @@ fn update(_app: &App, game: &mut Game, update: Update) {
         match cell.genome[cell.step] {
             Gen::SetDirection(d) => cell.to_rotate(d),
             Gen::Reproduce => {
+                let mut new_cell = cell.clone();
+                let mut is_rprdc = false;
                 let (left, right, up, down) = (
                     limit(0, 49, cell.position.0 as i64 - 1) as usize,
                     limit(0, 49, cell.position.0 as i64 + 1) as usize,
@@ -62,49 +64,39 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                 match cell.direction {
                     0 => {
                         if grid[right][cell.position.1] == 0 {
-                            cell.step = 0;
-                            cell.time_life = 0;
-                            let mut new_cell = cell.clone(); 
+                            is_rprdc = true;
                             new_cell.position.0 = right;
-
                             grid[right][new_cell.position.1] = 1;
-                            new_buf_cells.push(new_cell);
                         }
                     },
                     1 => {
                         if grid[cell.position.0][up] == 0 {
-                            cell.step = 0;
-                            cell.time_life = 0;
-                            let mut new_cell = cell.clone();
+                            is_rprdc = true;
                             new_cell.position.1 = up;
-
                             grid[cell.position.0][up] = 1;
-                            new_buf_cells.push(new_cell);
                         }
                     },
                     2 => {
                         if grid[left][cell.position.1] == 0 {
-                            cell.step = 0;
-                            cell.time_life = 0;
-                            let mut new_cell = cell.clone();
+                            is_rprdc = true;
                             new_cell.position.0 = left;
-
                             grid[left][new_cell.position.1] = 1;
-                            new_buf_cells.push(new_cell);
                         }
                     },
                     3 => {
                         if grid[cell.position.0][down] == 0 {
-                            cell.step = 0;
-                            cell.time_life = 0;
-                            let mut new_cell = cell.clone();
+                            is_rprdc = true;
                             new_cell.position.1 = down;
-
                             grid[cell.position.0][down] = 1;
-                            new_buf_cells.push(new_cell);
                         }
                     },
                     _ => {}
+                }
+
+                if is_rprdc {
+                    (cell.step, new_cell.step) = (0, 0);
+                    (cell.time_life, new_cell.time_life) = (0, 0);
+                    new_buf_cells.push(new_cell);
                 }
             },
         }

@@ -2,6 +2,7 @@
 name = "cells"
 version = "0.0.1"
 edition = "2021"
+authors = ["Omega0x0 <OmegaHex@yandex.ru>"]
 
 [dependencies]
 rand = "0.8.5"
