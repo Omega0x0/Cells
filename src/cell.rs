@@ -62,6 +62,13 @@ impl Cell {
             self.color.modify();
         }
     }
+
+    pub fn consume(&mut self) -> f32 {
+        return
+            DEFAULT_MIN_MASS / self.min_mass +
+            self.max_mass / DEFAULT_MAX_MASS +
+            self.time_life as f32 / self.max_time_life as f32;
+    }
 }
 
 #[derive(Clone, Debug)]

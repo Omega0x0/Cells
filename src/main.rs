@@ -105,7 +105,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
         cell.time_life += 1;
         cell.step += 1;
         cell.mass += game.world.nutrient_medium * 
-        (1.0 - cell.position.1 as f32 / SIZE_MAP.1 as f32);
+        (1.0 - cell.position.1 as f32 / SIZE_MAP.1 as f32) - cell.consume();
         if cell.step >= cell.genome.len() { cell.step = 0; }
 
         game.info.ave_max_lifetime += cell.max_time_life as f32;

@@ -11,7 +11,7 @@ impl World {
     pub fn new() -> Self {
         Self {
             cells: ([[0; SIZE_MAP.0]; SIZE_MAP.1], vec![Cell::new((25, 0))]),
-            nutrient_medium: 1.2
+            nutrient_medium: 4.0
         }
     }
 }
