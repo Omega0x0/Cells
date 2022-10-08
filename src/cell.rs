@@ -22,6 +22,13 @@ impl Cell {
             ]
         }
     }
+
+    pub fn to_rotate(&mut self, direction: i8) {
+        self.direction += direction;
+
+        if self.direction > 3 { self.direction = 0; }
+        else if self.direction < 0 { self.direction = 3; }
+    }
 }
 
 #[derive(Clone, Debug)]

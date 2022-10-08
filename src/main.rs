@@ -45,19 +45,12 @@ fn raw_window_event(_app: &App, game: &mut Game, event: &nannou::winit::event::W
 }
 
 fn update(_app: &App, game: &mut Game, update: Update) {
-    game.world.cells.0 = [[0; SIZE_MAP.0]; SIZE_MAP.1];
-
-    let mut new_buf_cells: Vec<Cell> = game.world.cells.1.clone();
+    let mut new_buf_cells: Vec<Cell> = vec![];
     for cell in game.world.cells.1.iter_mut() {
         let grid = &mut game.world.cells.0;
-        
+    
         match cell.genome[cell.step] {
-            Gen::SetDirection(d) => {
-                cell.direction += d;
-                
-                if cell.direction > 3 { cell.direction = 0; }
-                else if cell.direction < 0 { cell.direction = 3; }
-            },
+            Gen::SetDirection(d) => cell.to_rotate(d),
             Gen::Reproduce => {
                 let (left, right, up, down) = (
                     limit(0, 49, cell.position.0 as i64 - 1) as usize,
@@ -111,12 +104,11 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                 }
             },
         }
+
         cell.step += 1;
         if cell.step >= cell.genome.len() { cell.step = 0; }
-
-        println!("{:?}", cell);
     }
-    game.world.cells.1 = new_buf_cells;
+    game.world.cells.1.append(&mut new_buf_cells);
 
     let egui = &mut game.egui;
 
