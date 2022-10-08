@@ -1,4 +1,4 @@
-use cells::{world::*, cell::{Gen, Cell}, limit};
+use cells::{world::*, cell::{Gen, Cell}, limit, info::Info};
 use nannou::prelude::*;
 use nannou_egui::{self, egui, Egui};
 
@@ -11,6 +11,7 @@ fn main() {
 
 struct Game {
     world: World,
+    info: Info,
     egui: Egui
 }
 
@@ -30,6 +31,7 @@ fn create_window(app: &App) -> Game {
 
     Game {
         world: World::new(),
+        info: Info::new(),
         egui 
     }
 }
@@ -55,10 +57,10 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                 let mut new_cell = cell.clone();
                 let mut is_rprdc = false;
                 let (left, right, up, down) = (
-                    limit(0, 49, cell.position.0 as i64 - 1) as usize,
-                    limit(0, 49, cell.position.0 as i64 + 1) as usize,
-                    limit(0, 49, cell.position.1 as i64 + 1) as usize,
-                    limit(0, 49, cell.position.1 as i64 - 1) as usize,
+                    limit(0, (SIZE_MAP.1 - 1) as i64, cell.position.0 as i64 - 1) as usize,
+                    limit(0, (SIZE_MAP.1 - 1) as i64, cell.position.0 as i64 + 1) as usize,
+                    limit(0, (SIZE_MAP.1 - 1) as i64, cell.position.1 as i64 + 1) as usize,
+                    limit(0, (SIZE_MAP.1 - 1) as i64, cell.position.1 as i64 - 1) as usize,
                 );
 
                 match cell.direction {
@@ -66,28 +68,24 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                         if grid[right][cell.position.1] == 0 {
                             is_rprdc = true;
                             new_cell.position.0 = right;
-                            grid[right][new_cell.position.1] = 1;
                         }
                     },
                     1 => {
                         if grid[cell.position.0][up] == 0 {
                             is_rprdc = true;
                             new_cell.position.1 = up;
-                            grid[cell.position.0][up] = 1;
                         }
                     },
                     2 => {
                         if grid[left][cell.position.1] == 0 {
                             is_rprdc = true;
                             new_cell.position.0 = left;
-                            grid[left][new_cell.position.1] = 1;
                         }
                     },
                     3 => {
                         if grid[cell.position.0][down] == 0 {
                             is_rprdc = true;
                             new_cell.position.1 = down;
-                            grid[cell.position.0][down] = 1;
                         }
                     },
                     _ => {}
@@ -95,8 +93,10 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 
                 if is_rprdc && cell.mass > cell.min_mass_division {
                     new_cell.step = 0;
+                    grid[new_cell.position.0][new_cell.position.1] = 1;
                     (cell.time_life, new_cell.time_life) = (0, 0);
                     (cell.mass, new_cell.mass) = (cell.mass / 2.0, new_cell.mass / 2.0);
+                    new_cell.mutate();
                     new_buf_cells.push(new_cell);
                 }
             },
@@ -104,8 +104,14 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 
         cell.time_life += 1;
         cell.step += 1;
-        cell.mass += game.world.nutrient_medium;
+        cell.mass += game.world.nutrient_medium * 
+        (1.0 - cell.position.1 as f32 / SIZE_MAP.1 as f32);
         if cell.step >= cell.genome.len() { cell.step = 0; }
+
+        game.info.ave_max_lifetime += cell.max_time_life as f32;
+        game.info.ave_min_mass += cell.min_mass as f32;
+        game.info.ave_max_mass += cell.max_mass as f32;
+        game.info.ave_min_mass_division += cell.min_mass_division as f32;
     }
     game.world.cells.1.append(&mut new_buf_cells);
 
@@ -134,6 +140,18 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 
         ui.label("Nutrient medium:");
         ui.add(egui::Slider::new(&mut game.world.nutrient_medium, 0.0..=10.0))
+    });
+
+    game.info.ave_max_lifetime /= game.world.cells.1.len() as f32;
+    game.info.ave_min_mass /= game.world.cells.1.len() as f32;
+    game.info.ave_max_mass /= game.world.cells.1.len() as f32;
+    game.info.ave_min_mass_division /= game.world.cells.1.len() as f32;
+
+    egui::Window::new("Info").show(&ctx, |ui| {
+        ui.label(format!("Average max lifetime: {:.1}", game.info.ave_max_lifetime));
+        ui.label(format!("Average min mass: {:.1}", game.info.ave_min_mass));
+        ui.label(format!("Average max mass: {:.1}", game.info.ave_max_mass));
+        ui.label(format!("Average min mass division: {:.1}", game.info.ave_min_mass_division));
     });
 }
 

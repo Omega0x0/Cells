@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::color::ColorCell;
 
 pub const DEFAULT_MAX_TIME_LIFE: usize = 13;
@@ -47,6 +49,18 @@ impl Cell {
 
     pub fn to_rotate(&mut self, direction: i8) {
         self.direction = (self.direction + direction) % 4;
+    }
+
+    pub fn mutate(&mut self) {
+        if rand::thread_rng().gen_range(0.0..1.0) < 0.01 {
+            self.max_time_life = (self.max_time_life as i64 + rand::thread_rng().gen_range(-1..=1)) as usize;
+
+            self.min_mass += rand::thread_rng().gen_range(-1.0..=1.0);
+            self.min_mass_division += rand::thread_rng().gen_range(-1.0..=1.0);
+            self.max_mass += rand::thread_rng().gen_range(-1.0..=1.0);
+
+            self.color.modify();
+        }
     }
 }
 

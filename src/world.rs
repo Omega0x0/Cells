@@ -1,6 +1,6 @@
 use crate::cell::Cell;
 
-pub const SIZE_MAP: (usize, usize) = (50, 50);
+pub const SIZE_MAP: (usize, usize) = (40, 40);
 
 pub struct World {
     pub cells: ([[u8; SIZE_MAP.0]; SIZE_MAP.1], Vec<Cell>),
@@ -10,8 +10,8 @@ pub struct World {
 impl World {
     pub fn new() -> Self {
         Self {
-            cells: ([[0; SIZE_MAP.0]; SIZE_MAP.1], vec![Cell::new((25, 25))]),
-            nutrient_medium: 2.0
+            cells: ([[0; SIZE_MAP.0]; SIZE_MAP.1], vec![Cell::new((25, 0))]),
+            nutrient_medium: 1.2
         }
     }
 }

@@ -17,9 +17,9 @@ impl ColorCell {
     }
 
     pub fn modify(&mut self) {
-        self.r += rand::thread_rng().gen_range(-0.2..0.2);
-        self.g += rand::thread_rng().gen_range(-0.2..0.2);
-        self.b += rand::thread_rng().gen_range(-0.2..0.2);
+        self.r += rand::thread_rng().gen_range(-0.3..=0.3);
+        self.g += rand::thread_rng().gen_range(-0.3..=0.3);
+        self.b += rand::thread_rng().gen_range(-0.3..=0.3);
 
         if self.r < 0.0 { self.r = 0.0; }
         if self.g < 0.0 { self.r = 0.0; }
