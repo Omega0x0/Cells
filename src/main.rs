@@ -63,7 +63,8 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                     0 => {
                         if grid[right][cell.position.1] == 0 {
                             cell.step = 0;
-                            let mut new_cell = cell.clone();
+                            cell.time_life = 0;
+                            let mut new_cell = cell.clone(); 
                             new_cell.position.0 = right;
 
                             grid[right][new_cell.position.1] = 1;
@@ -73,6 +74,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                     1 => {
                         if grid[cell.position.0][up] == 0 {
                             cell.step = 0;
+                            cell.time_life = 0;
                             let mut new_cell = cell.clone();
                             new_cell.position.1 = up;
 
@@ -83,6 +85,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                     2 => {
                         if grid[left][cell.position.1] == 0 {
                             cell.step = 0;
+                            cell.time_life = 0;
                             let mut new_cell = cell.clone();
                             new_cell.position.0 = left;
 
@@ -93,6 +96,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                     3 => {
                         if grid[cell.position.0][down] == 0 {
                             cell.step = 0;
+                            cell.time_life = 0;
                             let mut new_cell = cell.clone();
                             new_cell.position.1 = down;
 
@@ -105,14 +109,29 @@ fn update(_app: &App, game: &mut Game, update: Update) {
             },
         }
 
+        cell.time_life += 1;
         cell.step += 1;
         if cell.step >= cell.genome.len() { cell.step = 0; }
     }
     game.world.cells.1.append(&mut new_buf_cells);
 
-    let egui = &mut game.egui;
+    for i in 0..game.world.cells.1.len() {
+        if i < game.world.cells.1.len() && 
+        game.world.cells.1[i].time_life > game.world.cells.1[i].max_time_life {
+            let (x, y) = (
+                game.world.cells.1[i].position.0, 
+                game.world.cells.1[i].position.1
+            );
 
+            game.world.cells.0[x][y] = 0;
+            game.world.cells.1.remove(i);
+        }
+    }
+
+
+    let egui = &mut game.egui;
     egui.set_elapsed_time(update.since_start);
+
     let ctx = egui.begin_frame();
 
     egui::Window::new("Info").show(&ctx, |ui| {

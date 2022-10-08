@@ -1,10 +1,16 @@
 use crate::color::ColorCell;
 
+pub const DEFAULT_MAX_TIME_LIFE: usize = 3;
+
 #[derive(Clone, Debug)]
 pub struct Cell {
     pub position: (usize, usize),
     pub color: ColorCell,
     pub direction: i8,
+
+    pub time_life: usize,
+    pub max_time_life: usize,
+
     pub step: usize,
     pub genome: Vec<Gen>
 }
@@ -15,6 +21,10 @@ impl Cell {
             position: pos,
             color: ColorCell::new(1., 1., 1.),
             direction: 0,
+
+            time_life: 0,
+            max_time_life: DEFAULT_MAX_TIME_LIFE,
+
             step: 0,
             genome: vec![
                 Gen::SetDirection(1),
