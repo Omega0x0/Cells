@@ -93,9 +93,10 @@ fn update(_app: &App, game: &mut Game, update: Update) {
                     _ => {}
                 }
 
-                if is_rprdc {
-                    (cell.step, new_cell.step) = (0, 0);
+                if is_rprdc && cell.mass > cell.min_mass_division {
+                    new_cell.step = 0;
                     (cell.time_life, new_cell.time_life) = (0, 0);
+                    (cell.mass, new_cell.mass) = (cell.mass / 2.0, new_cell.mass / 2.0);
                     new_buf_cells.push(new_cell);
                 }
             },
@@ -103,13 +104,15 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 
         cell.time_life += 1;
         cell.step += 1;
+        cell.mass += game.world.nutrient_medium;
         if cell.step >= cell.genome.len() { cell.step = 0; }
     }
     game.world.cells.1.append(&mut new_buf_cells);
 
     for i in 0..game.world.cells.1.len() {
         if i < game.world.cells.1.len() && 
-        game.world.cells.1[i].time_life > game.world.cells.1[i].max_time_life {
+        (game.world.cells.1[i].time_life > game.world.cells.1[i].max_time_life ||
+        game.world.cells.1[i].mass < game.world.cells.1[i].min_mass) {
             let (x, y) = (
                 game.world.cells.1[i].position.0, 
                 game.world.cells.1[i].position.1
@@ -126,8 +129,11 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 
     let ctx = egui.begin_frame();
 
-    egui::Window::new("Info").show(&ctx, |ui| {
+    egui::Window::new("World").show(&ctx, |ui| {
         ui.label(format!("Cells: {}", game.world.cells.1.len()));
+
+        ui.label("Nutrient medium:");
+        ui.add(egui::Slider::new(&mut game.world.nutrient_medium, 0.0..=10.0))
     });
 }
 
