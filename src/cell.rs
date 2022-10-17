@@ -59,6 +59,31 @@ impl Cell {
             self.min_mass_division += rand::thread_rng().gen_range(-1.0..=1.0);
             self.max_mass += rand::thread_rng().gen_range(-1.0..=1.0);
 
+            let rand_k = rand::thread_rng().gen_range(0..3);
+            if rand_k == 0 {
+                for gen in self.genome.iter_mut() {
+                    match gen {
+                        Gen::SetDirection(d) => {
+                            *d += rand::thread_rng().gen_range(-1..=1);
+                        }
+                        _ => {}
+                    }
+                }
+            } else if rand_k == 1 {
+                let gen_i = rand::thread_rng().gen_range(0..2);
+                match gen_i {
+                    0 => self.genome.push(Gen::SetDirection(rand::thread_rng().gen_range(0..4))),
+                    1 => self.genome.push(Gen::Reproduce),
+                    _ => {}
+                }
+            } else if rand_k == 2 {
+                let gen_i = rand::thread_rng().gen_range(0..self.genome.len());
+                self.genome.remove(gen_i);
+            }
+
+            if self.step >= self.genome.len() { self.step = 0; }
+            if self.genome.len() > 10 { self.mass = -1.0; }
+
             self.color.modify();
         }
     }

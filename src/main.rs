@@ -23,7 +23,7 @@ fn create_window(app: &App) -> Game {
         .view(view)
         .raw_event(raw_window_event)
         .size(WIDTH_SCREEN, HEIGHT_SCREEN)
-        //.resizable(false)
+        .resizable(false)
         .build()
         .unwrap();
     let window = app.window(window_id).unwrap();
@@ -81,7 +81,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
     let mut new_buf_cells: Vec<Cell> = vec![];
     for i in 0..game.world.cells.1.len() {
         if i >= game.world.cells.1.len() { break; }
-        
+
         let mut cell = &mut game.world.cells.1[i];
         let grid = &mut game.world.cells.0;
     
