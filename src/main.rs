@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use cells::{world::*, cell::{Gen, Cell}, limit, info::Info, filters::Filters};
 use nannou::prelude::*;
 use nannou_egui::{self, egui, Egui};
@@ -81,7 +79,10 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 
 
     let mut new_buf_cells: Vec<Cell> = vec![];
-    for cell in game.world.cells.1.iter_mut() {
+    for i in 0..game.world.cells.1.len() {
+        if i >= game.world.cells.1.len() { break; }
+        
+        let mut cell = &mut game.world.cells.1[i];
         let grid = &mut game.world.cells.0;
     
         match cell.genome[cell.step] {
@@ -147,15 +148,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
         game.info.ave_min_mass += cell.min_mass as f32;
         game.info.ave_max_mass += cell.max_mass as f32;
         game.info.ave_min_mass_division += cell.min_mass_division as f32;
-    }
-    game.info.ave_max_lifetime /= game.world.cells.1.len() as f32;
-    game.info.ave_min_mass /= game.world.cells.1.len() as f32;
-    game.info.ave_max_mass /= game.world.cells.1.len() as f32;
-    game.info.ave_min_mass_division /= game.world.cells.1.len() as f32;
 
-    game.world.cells.1.append(&mut new_buf_cells);
-
-    for i in 0..game.world.cells.1.len() {
         if i < game.world.cells.1.len() && 
         (game.world.cells.1[i].time_life > game.world.cells.1[i].max_time_life ||
         game.world.cells.1[i].mass < game.world.cells.1[i].min_mass) {
@@ -168,6 +161,12 @@ fn update(_app: &App, game: &mut Game, update: Update) {
             game.world.cells.1.remove(i);
         }
     }
+    game.info.ave_max_lifetime /= game.world.cells.1.len() as f32;
+    game.info.ave_min_mass /= game.world.cells.1.len() as f32;
+    game.info.ave_max_mass /= game.world.cells.1.len() as f32;
+    game.info.ave_min_mass_division /= game.world.cells.1.len() as f32;
+
+    game.world.cells.1.append(&mut new_buf_cells);
 }
 
 fn view(app: &App, game: &Game, frame: Frame) {
