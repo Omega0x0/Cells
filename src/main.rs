@@ -1,6 +1,6 @@
 use cells::{world::*, cell::{Gen, Cell}, limit, info::Info, filters::Filters};
 use nannou::prelude::*;
-use nannou_egui::{self, egui, Egui};
+use nannou_egui::{self, egui::{self}, Egui};
 
 const WIDTH_SCREEN: u32 = 1280;
 const HEIGHT_SCREEN: u32 = 720;
@@ -33,7 +33,7 @@ fn create_window(app: &App) -> Game {
     Game {
         world: World::new(),
         info: Info::new(),
-        filters: Filters::new(),
+        filters: Filters::Default,
         egui 
     }
 }
@@ -70,10 +70,11 @@ fn update(_app: &App, game: &mut Game, update: Update) {
     });
 
     egui::Window::new("Filters").show(&ctx, |ui| {
-        ui.checkbox(&mut game.filters.max_lifetime, "Max time of time.");
-        ui.checkbox(&mut game.filters.max_mass, "Max mass.");
-        ui.checkbox(&mut game.filters.min_mass, "Min mass.");
-        ui.checkbox(&mut game.filters.min_mass_division, "Min mass of division.");
+        ui.radio_value(&mut game.filters, Filters::Default, "Default.");
+        ui.radio_value(&mut game.filters, Filters::MaxLifeTime, "Max time of life");
+        ui.radio_value(&mut game.filters, Filters::MaxMass, "Max mass.");
+        ui.radio_value(&mut game.filters, Filters::MinMass, "Min mass.");
+        ui.radio_value(&mut game.filters, Filters::MinMassDivision, "Min mass of division.");
     });
 
 
@@ -85,6 +86,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
         let mut cell = &mut game.world.cells.1[i];
         let grid = &mut game.world.cells.0;
     
+        if cell.step >= cell.genome.len() { cell.step = 0; }
         match cell.genome[cell.step] {
             Gen::SetDirection(d) => cell.to_rotate(d),
             Gen::Reproduce => {
@@ -194,37 +196,37 @@ fn view(app: &App, game: &Game, frame: Frame) {
                 size_cell.1 / 2.0
             );
 
-        if game.filters.max_lifetime {
-            rect.rgb(
-                cell.max_time_life as f32 / game.info.ave_max_lifetime - 0.8, 
-                cell.max_time_life as f32 / game.info.ave_max_lifetime - 0.8, 
-                cell.max_time_life as f32 / game.info.ave_max_lifetime - 0.8
-            );
-            continue;
-        } else if game.filters.max_mass {
-            rect.rgb(
-                cell.max_mass as f32 / game.info.ave_max_mass - 0.8, 
-                cell.max_mass as f32 / game.info.ave_max_mass - 0.8, 
-                cell.max_mass as f32 / game.info.ave_max_mass - 0.8
-            );
-            continue;
-        } else if game.filters.min_mass {
-            rect.rgb(
-                cell.min_mass as f32 / game.info.ave_min_mass - 0.8, 
-                cell.min_mass as f32 / game.info.ave_min_mass - 0.8, 
-                cell.min_mass as f32 / game.info.ave_min_mass - 0.8
-            );
-            continue;
-        } else if game.filters.min_mass_division {
-            rect.rgb(
-                cell.min_mass_division as f32 / game.info.ave_min_mass_division - 0.8, 
-                cell.min_mass_division as f32 / game.info.ave_min_mass_division - 0.8, 
-                cell.min_mass_division as f32 / game.info.ave_min_mass_division - 0.8
-            );
-            continue;
+        match game.filters {
+            Filters::MaxLifeTime => {
+                rect.rgb(
+                    cell.max_time_life as f32 / game.info.ave_max_lifetime - 0.8, 
+                    cell.max_time_life as f32 / game.info.ave_max_lifetime - 0.8, 
+                    cell.max_time_life as f32 / game.info.ave_max_lifetime - 0.8
+                );
+            },
+            Filters::MaxMass => {
+                rect.rgb(
+                    cell.max_mass as f32 / game.info.ave_max_mass - 0.8, 
+                    cell.max_mass as f32 / game.info.ave_max_mass - 0.8, 
+                    cell.max_mass as f32 / game.info.ave_max_mass - 0.8
+                );
+            },
+            Filters::MinMass => {
+                rect.rgb(
+                    cell.min_mass as f32 / game.info.ave_min_mass - 0.8, 
+                    cell.min_mass as f32 / game.info.ave_min_mass - 0.8, 
+                    cell.min_mass as f32 / game.info.ave_min_mass - 0.8
+                );
+            },
+            Filters::MinMassDivision => {
+                rect.rgb(
+                    cell.min_mass_division as f32 / game.info.ave_min_mass_division - 0.8, 
+                    cell.min_mass_division as f32 / game.info.ave_min_mass_division - 0.8, 
+                    cell.min_mass_division as f32 / game.info.ave_min_mass_division - 0.8
+                );
+            },
+            Filters::Default => { rect.rgb(cell.color.r, cell.color.g, cell.color.b); }
         }
-
-        rect.rgb(cell.color.r, cell.color.g, cell.color.b);
     }
 
     draw.to_frame(app, &frame).unwrap();

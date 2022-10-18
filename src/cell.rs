@@ -76,13 +76,12 @@ impl Cell {
                     1 => self.genome.push(Gen::Reproduce),
                     _ => {}
                 }
+                
+                if self.genome.len() > 10 { self.mass = -1.0; }
             } else if rand_k == 2 {
                 let gen_i = rand::thread_rng().gen_range(0..self.genome.len());
                 self.genome.remove(gen_i);
             }
-
-            if self.step >= self.genome.len() { self.step = 0; }
-            if self.genome.len() > 10 { self.mass = -1.0; }
 
             self.color.modify();
         }
