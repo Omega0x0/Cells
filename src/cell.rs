@@ -81,6 +81,8 @@ impl Cell {
             } else if rand_k == 2 {
                 let gen_i = rand::thread_rng().gen_range(0..self.genome.len());
                 self.genome.remove(gen_i);
+
+                if self.genome.len() == 0 { self.mass = -1.0; }
             }
 
             self.color.modify();
