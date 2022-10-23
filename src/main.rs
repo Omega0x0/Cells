@@ -3,12 +3,13 @@ use cells::{
     filters::Filters,
     info::Info,
     limit,
-    world::*,
+    world::*, settings::Settings,
 };
-use nannou::prelude::*;
+use nannou::{prelude::*, event::ElementState};
+use nannou::winit::event::WindowEvent;
 use nannou_egui::{
     self,
-    egui::{self},
+    egui,
     Egui,
 };
 
@@ -23,6 +24,7 @@ struct Game {
     world: World,
     info: Info,
     filters: Filters,
+    settings: Settings,
     egui: Egui,
 }
 
@@ -44,17 +46,46 @@ fn create_window(app: &App) -> Game {
         world: World::new(),
         info: Info::new(),
         filters: Filters::Default,
+        settings: Settings::new(),
         egui,
     }
 }
 
 fn raw_window_event(_app: &App, game: &mut Game, event: &nannou::winit::event::WindowEvent) {
     match event {
-        nannou::winit::event::WindowEvent::CloseRequested => {
+        WindowEvent::CloseRequested => {
             std::process::exit(0x0000);
         }
+        WindowEvent::MouseWheel { delta, .. } => {
+            game.settings.scale += if let MouseScrollDelta::LineDelta(_, y) = delta { 
+                if game.settings.scale <= 0.5 && *y / 5.0 < 0.0 {
+                    0.0
+                } else { *y / 5.0 }
+            } else { 
+                0.0 
+            };
+        }
+        WindowEvent::MouseInput { state, ..} => {
+            if let ElementState::Pressed = state { 
+                game.settings.mouse.pressed = true; 
+            } else { 
+                game.settings.mouse.pressed = false; 
+            }
+        }
+        WindowEvent::CursorMoved { position, ..} => {
+            if game.settings.mouse.pressed {
+                let direc = vec2(
+                    (position.x - game.settings.mouse.last_pos.0) as f32,
+                    (game.settings.mouse.last_pos.1 - position.y) as f32
+                );
+
+                game.settings.position += direc;
+            }
+            game.settings.mouse.last_pos = (position.x, position.y);
+        } 
         _ => {}
     }
+
     game.egui.handle_raw_event(event);
 }
 
@@ -307,26 +338,31 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 }
 
 fn view(app: &App, game: &Game, frame: Frame) {
-    let size_cell = (
-        WIDTH_SCREEN as f32 / SIZE_MAP.0 as f32,
-        HEIGHT_SCREEN as f32 * (WIDTH_SCREEN as f32 / HEIGHT_SCREEN as f32) / SIZE_MAP.1 as f32,
-    );
+    let settings = &game.settings;
+    let size_cell = (5.0 * settings.scale, 5.0 * settings.scale);
     let draw = app.draw();
+
     draw.background().rgb(15. / 255., 15. / 255., 25. / 255.);
+    draw.rect()
+        .stroke_color(GRAY)
+        .stroke_weight(size_cell.0)
+        .color(rgba(0.0, 0.0, 0.0, 0.0))
+        .w_h(
+            SIZE_MAP.0 as f32 * size_cell.0 + size_cell.0, 
+            SIZE_MAP.1 as f32 * size_cell.1 + size_cell.1
+        )
+        .x_y(
+            SIZE_MAP.0 as f32 * size_cell.0 / 2.0 + settings.position.x as f32 - size_cell.0 / 2.0, 
+            SIZE_MAP.1 as f32 * size_cell.1 / 2.0 + settings.position.y as f32 - size_cell.1 / 2.0
+        );
 
     for cell in game.world.cells.1.iter() {
         let rect = draw
             .rect()
             .w(size_cell.0)
             .h(size_cell.1)
-            .x(
-                cell.position.0 as f32 * size_cell.0 - WIDTH_SCREEN as f32 / 2.0
-                    + size_cell.0 / 2.0,
-            )
-            .y(
-                cell.position.1 as f32 * size_cell.1 - HEIGHT_SCREEN as f32 / 2.0
-                    + size_cell.1 / 2.0,
-            );
+            .x(cell.position.0 as f32 * size_cell.0 + settings.position.x as f32)
+            .y(cell.position.1 as f32 * size_cell.1 + settings.position.y as f32);
 
         match game.filters {
             Filters::MaxLifeTime => {
