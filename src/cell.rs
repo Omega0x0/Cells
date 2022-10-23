@@ -10,6 +10,7 @@ pub const DEFAULT_MIN_MASS_DIVISION: f32 = 26.0;
 
 #[derive(Clone, Debug)]
 pub struct Cell {
+    pub species: usize,
     pub position: (usize, usize),
     pub color: ColorCell,
     pub direction: i8,
@@ -20,6 +21,7 @@ pub struct Cell {
     pub mass: f32,
     pub max_mass: f32,
     pub min_mass_division: f32,
+    pub damage: f32,
 
     pub step: usize,
     pub genome: Vec<Gen>
@@ -28,6 +30,7 @@ pub struct Cell {
 impl Cell {
     pub fn new(pos: (usize, usize)) -> Self {
         Self {
+            species: 0,
             position: pos,
             color: ColorCell::new(1., 1., 1.),
             direction: 0,
@@ -38,6 +41,7 @@ impl Cell {
             mass: DEFAULT_MASS,
             max_mass: DEFAULT_MAX_MASS,
             min_mass_division: DEFAULT_MIN_MASS_DIVISION,
+            damage: 1.0,
 
             step: 0,
             genome: vec![
@@ -53,11 +57,14 @@ impl Cell {
 
     pub fn mutate(&mut self) {
         if rand::thread_rng().gen_range(0.0..1.0) < 0.01 {
+            self.species += 1;
+
             self.max_time_life = (self.max_time_life as i64 + rand::thread_rng().gen_range(-1..=1)) as usize;
 
             self.min_mass += rand::thread_rng().gen_range(-1.0..=1.0);
             self.min_mass_division += rand::thread_rng().gen_range(-1.0..=1.0);
             self.max_mass += rand::thread_rng().gen_range(-1.0..=1.0);
+            self.damage += rand::thread_rng().gen_range(-1.0..=1.0);
 
             let rand_k = rand::thread_rng().gen_range(0..3);
             if rand_k == 0 {
@@ -65,15 +72,16 @@ impl Cell {
                     match gen {
                         Gen::SetDirection(d) => {
                             *d += rand::thread_rng().gen_range(-1..=1);
-                        }
+                        },
                         _ => {}
                     }
                 }
             } else if rand_k == 1 {
-                let gen_i = rand::thread_rng().gen_range(0..2);
+                let gen_i = rand::thread_rng().gen_range(0..3);
                 match gen_i {
                     0 => self.genome.push(Gen::SetDirection(rand::thread_rng().gen_range(0..4))),
                     1 => self.genome.push(Gen::Reproduce),
+                    2 => self.genome.push(Gen::Attack),
                     _ => {}
                 }
                 
@@ -101,4 +109,5 @@ impl Cell {
 pub enum Gen {
     SetDirection(i8),
     Reproduce,
+    Attack,
 }
