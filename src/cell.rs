@@ -85,7 +85,7 @@ impl Cell {
                     _ => {}
                 }
                 
-                if self.genome.len() > 10 { self.mass = -1.0; }
+                if self.genome.len() > 20 { self.mass = -1.0; }
             } else if rand_k == 2 {
                 let gen_i = rand::thread_rng().gen_range(0..self.genome.len());
                 

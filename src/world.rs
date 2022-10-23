@@ -5,13 +5,15 @@ pub const SIZE_MAP: (usize, usize) = (50, 50);
 pub struct World {
     pub cells: ([[i32; SIZE_MAP.0]; SIZE_MAP.1], Vec<Cell>),
     pub nutrient_medium: f32,
+    pub speed: usize,
 }
 
 impl World {
     pub fn new() -> Self {
         Self {
             cells: ([[-1; SIZE_MAP.0]; SIZE_MAP.1], vec![Cell::new((0, 0))]),
-            nutrient_medium: 4.0
+            nutrient_medium: 4.0,
+            speed: 0
         }
     }
 }

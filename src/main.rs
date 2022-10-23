@@ -35,7 +35,6 @@ fn create_window(app: &App) -> Game {
         .view(view)
         .raw_event(raw_window_event)
         .size(WIDTH_SCREEN, HEIGHT_SCREEN)
-        .resizable(false)
         .build()
         .unwrap();
     let window = app.window(window_id).unwrap();
@@ -110,6 +109,12 @@ fn update(_app: &App, game: &mut Game, update: Update) {
             &mut game.world.nutrient_medium,
             0.0..=10.0,
         ));
+
+        ui.label("Speed:");
+        ui.add(egui::Slider::new(
+            &mut game.world.speed,
+            0..=50,
+        ));
     });
 
     egui::Window::new("Info").show(&ctx, |ui| {
@@ -177,8 +182,10 @@ fn update(_app: &App, game: &mut Game, update: Update) {
         );
     });
 
-    let mut new_buf_cells: Vec<Cell> = vec![];
-    for i in 0..game.world.cells.1.len() {
+    for _ in 0..game.world.speed {
+
+        let mut new_buf_cells: Vec<Cell> = vec![];
+        for i in 0..game.world.cells.1.len() {
         if i >= game.world.cells.1.len() {
             break;
         }
@@ -328,13 +335,15 @@ fn update(_app: &App, game: &mut Game, update: Update) {
             game.world.cells.1.remove(i);
         }
     }
-    game.info.ave_max_lifetime /= game.world.cells.1.len() as f32;
-    game.info.ave_min_mass /= game.world.cells.1.len() as f32;
-    game.info.ave_max_mass /= game.world.cells.1.len() as f32;
-    game.info.ave_min_mass_division /= game.world.cells.1.len() as f32;
-    game.info.ave_damage /= game.world.cells.1.len() as f32;
+        game.info.ave_max_lifetime /= game.world.cells.1.len() as f32;
+        game.info.ave_min_mass /= game.world.cells.1.len() as f32;
+        game.info.ave_max_mass /= game.world.cells.1.len() as f32;
+        game.info.ave_min_mass_division /= game.world.cells.1.len() as f32;
+        game.info.ave_damage /= game.world.cells.1.len() as f32;
 
-    game.world.cells.1.append(&mut new_buf_cells);
+        game.world.cells.1.append(&mut new_buf_cells);
+
+    }
 }
 
 fn view(app: &App, game: &Game, frame: Frame) {
