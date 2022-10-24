@@ -6,4 +6,5 @@ pub enum Filters {
     MinMass,
     MinMassDivision,
     Damage,
+    Resistance,
 }

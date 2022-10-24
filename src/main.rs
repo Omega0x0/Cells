@@ -142,6 +142,11 @@ fn update(_app: &App, game: &mut Game, update: Update) {
             "Average damage: {:.3}",
             game.info.ave_damage
         ));
+
+        ui.label(format!(
+            "Average resistance: {:.3}",
+            game.info.ave_resistance
+        ));
     });
 
     egui::Window::new("Filters").show(&ctx, |ui| {
@@ -179,6 +184,12 @@ fn update(_app: &App, game: &mut Game, update: Update) {
             &mut game.filters,
             Filters::Damage,
             "Damage.",
+        );
+
+        ui.radio_value(
+            &mut game.filters,
+            Filters::Resistance,
+            "Resistance.",
         );
     });
 
@@ -293,8 +304,13 @@ fn update(_app: &App, game: &mut Game, update: Update) {
 
                 if i_neighbor_cell < game.world.cells.1.len() && 
                 game.world.cells.1[i].species != game.world.cells.1[i_neighbor_cell].species {
-                    game.world.cells.1[i_neighbor_cell].mass -= game.world.cells.1[i].damage;
-                    game.world.cells.1[i].mass += game.world.cells.1[i].damage;
+                    let dmg = game.world.cells.1[i_neighbor_cell].resistance - game.world.cells.1[i].damage;
+                    
+                    if dmg < 0.0 {
+                        game.world.cells.1[i_neighbor_cell].mass += dmg;
+                    }
+
+                    game.world.cells.1[i].mass += game.world.cells.1[i].damage - game.world.cells.1[i_neighbor_cell].resistance;
                 }
             }
         }
@@ -320,6 +336,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
             game.info.ave_max_mass += cell.max_mass;
             game.info.ave_min_mass_division += cell.min_mass_division;
             game.info.ave_damage += cell.damage;
+            game.info.ave_resistance += cell.resistance;
         }
 
         if i < game.world.cells.1.len()
@@ -340,6 +357,7 @@ fn update(_app: &App, game: &mut Game, update: Update) {
         game.info.ave_max_mass /= game.world.cells.1.len() as f32;
         game.info.ave_min_mass_division /= game.world.cells.1.len() as f32;
         game.info.ave_damage /= game.world.cells.1.len() as f32;
+        game.info.ave_resistance /= game.world.cells.1.len() as f32;
 
         game.world.cells.1.append(&mut new_buf_cells);
 
@@ -407,6 +425,13 @@ fn view(app: &App, game: &Game, frame: Frame) {
                     cell.damage as f32 / game.info.ave_damage - 0.8,
                     cell.damage as f32 / game.info.ave_damage - 0.8,
                     cell.damage as f32 / game.info.ave_damage - 0.8,
+                );
+            }
+            Filters::Resistance => {
+                rect.rgb(
+                    cell.resistance as f32 / game.info.ave_resistance - 0.8,
+                    cell.resistance as f32 / game.info.ave_resistance - 0.8,
+                    cell.resistance as f32 / game.info.ave_resistance - 0.8,
                 );
             }
             _ => {

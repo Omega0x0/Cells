@@ -7,6 +7,8 @@ pub const DEFAULT_MIN_MASS: f32 = 12.0;
 pub const DEFAULT_MASS: f32 = 25.0;
 pub const DEFAULT_MAX_MASS: f32 = 30.0;
 pub const DEFAULT_MIN_MASS_DIVISION: f32 = 26.0;
+pub const DEFAULT_DAMAGE: f32 = 1.0;
+pub const DEFAULT_RESISTANCE: f32 = 1.0;
 
 #[derive(Clone, Debug)]
 pub struct Cell {
@@ -22,6 +24,7 @@ pub struct Cell {
     pub max_mass: f32,
     pub min_mass_division: f32,
     pub damage: f32,
+    pub resistance: f32,
 
     pub step: usize,
     pub genome: Vec<Gen>
@@ -41,7 +44,8 @@ impl Cell {
             mass: DEFAULT_MASS,
             max_mass: DEFAULT_MAX_MASS,
             min_mass_division: DEFAULT_MIN_MASS_DIVISION,
-            damage: 1.0,
+            damage: DEFAULT_DAMAGE,
+            resistance: DEFAULT_RESISTANCE,
 
             step: 0,
             genome: vec![
@@ -65,6 +69,7 @@ impl Cell {
             self.min_mass_division += rand::thread_rng().gen_range(-1.0..=1.0);
             self.max_mass += rand::thread_rng().gen_range(-1.0..=1.0);
             self.damage += rand::thread_rng().gen_range(-1.0..=1.0);
+            self.resistance += rand::thread_rng().gen_range(-1.0..=1.0);
 
             let rand_k = rand::thread_rng().gen_range(0..3);
             if rand_k == 0 {
