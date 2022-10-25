@@ -61,7 +61,7 @@ impl Cell {
 
     pub fn mutate(&mut self) {
         if rand::thread_rng().gen_range(0.0..1.0) < 0.01 {
-            self.species += 1;
+            self.species = rand::thread_rng().gen_range(0..1_000_000_000);
 
             self.max_time_life = (self.max_time_life as i64 + rand::thread_rng().gen_range(-1..=1)) as usize;
 
@@ -98,7 +98,11 @@ impl Cell {
                     self.genome.remove(gen_i);
                 }
 
-                if self.genome.len() == 0 { self.mass = -1.0; }
+                if self.genome.len() == 0 
+                || self.damage < 0.0 
+                || self.resistance < 0.0 { 
+                    self.mass = -1.0; 
+                }
             }
 
             self.color.modify();
