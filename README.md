@@ -30,7 +30,7 @@ Cells is an ordinary simulator of cells, namely their evolution, their indicator
 3. Filters:
     * Allows you to view the color display of the view indicators in relation to the average for the substrate.
 
-===
+---
 
 ## [RUS]
 
