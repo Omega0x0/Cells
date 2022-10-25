@@ -9,6 +9,7 @@ pub const DEFAULT_MAX_MASS: f32 = 30.0;
 pub const DEFAULT_MIN_MASS_DIVISION: f32 = 26.0;
 pub const DEFAULT_DAMAGE: f32 = 1.0;
 pub const DEFAULT_RESISTANCE: f32 = 1.0;
+pub const MAX_LEN_GENOME: usize = 10;
 
 #[derive(Clone, Debug)]
 pub struct Cell {
@@ -35,7 +36,7 @@ impl Cell {
         Self {
             species: 0,
             position: pos,
-            color: ColorCell::new(1., 1., 1.),
+            color: ColorCell::new(0.5, 0.5, 0.5),
             direction: 0,
 
             time_life: 0,
@@ -90,7 +91,7 @@ impl Cell {
                     _ => {}
                 }
                 
-                if self.genome.len() > 20 { self.mass = -1.0; }
+                if self.genome.len() > MAX_LEN_GENOME { self.mass = -1.0; }
             } else if rand_k == 2 {
                 let gen_i = rand::thread_rng().gen_range(0..self.genome.len());
                 
