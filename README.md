@@ -15,7 +15,7 @@ Cells is an ordinary simulator of cells, namely their evolution, their indicator
 2. A cell cannot attack an empty space;
 3. Each cell has a direction for attack and division;
 4. The medium can nourish the cells located on it, but the amount of energy decreases with increasing height;
-5. The energy consumption of cells is formed according to the following formula ``` DEFAULT_MIN_MASS / min_mass + max_mass / DEFAULT_MAX_MASS + time_life / self.max_time_life ```;
+5. The energy consumption of cells is formed according to the following formula ``` DEFAULT_MIN_MASS / min_mass + max_mass / DEFAULT_MAX_MASS + time_life / max_time_life ```;
 6. Attack and defense do not waste energy, but if the attack fails, the energy will be lost (``` resistance - damage ```);
 7. Each cell has its own age, when the maximum set lifetime is reached, the cell dies, the same with the minimum mass;
 8. Evolution occurs by pseudorandom mutations, with mutation a new species appears and all the parameters of the cell change;
